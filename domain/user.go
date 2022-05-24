@@ -1,6 +1,10 @@
 package domain
 
-import "time"
+import (
+	"errors"
+	"net/http"
+	"time"
+)
 
 type User struct {
 	Email     string    `json:"email" gorm:"primaryKey"`
@@ -14,6 +18,14 @@ type Role struct {
 	Id          string `json:"id" gorm:"primaryKey"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
+}
+
+func (role Role) Bind(r *http.Request) error {
+	//TODO implement me
+	if role.Name == "" {
+		return errors.New("missing required fields")
+	}
+	return nil
 }
 
 type UserAccount struct {

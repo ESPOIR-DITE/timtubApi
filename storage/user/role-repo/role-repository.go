@@ -8,7 +8,7 @@ import (
 )
 
 func CreateRoleTable() bool {
-	var tableData = &domain.User{}
+	var tableData = &domain.Role{}
 	err := config.GetDatabase().AutoMigrate(tableData)
 	if err != nil {
 		return false
@@ -30,9 +30,15 @@ func CreateRole(entity domain.Role) *domain.Role {
 	config.GetDatabase().Create(user).Find(&tableData)
 	return tableData
 }
+func UpdateRole(entity domain.Role) *domain.Role {
+	var tableData = &domain.Role{}
+	user := domain.Role{entity.Id, entity.Name, entity.Description}
+	config.GetDatabase().Create(user).Find(&tableData)
+	return tableData
+}
 func GetRole(customerId string) domain.Role {
 	entity := domain.Role{}
-	config.GetDatabase().Where("CustomerId = ?", customerId).Find(&entity)
+	config.GetDatabase().Where("id = ?", customerId).Find(&entity)
 	return entity
 }
 func GetRoles() []domain.Role {
@@ -47,4 +53,7 @@ func DeleteRole(id string) bool {
 		return true
 	}
 	return false
+}
+func GetRoleObject(role *domain.Role) domain.Role {
+	return domain.Role{role.Id, role.Name, role.Description}
 }

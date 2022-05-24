@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"net/http"
 	"timtubeApi/config"
+	"timtubeApi/controller/user/role"
 )
 
 func Controllers(env *config.Env) http.Handler {
@@ -17,7 +18,7 @@ func Controllers(env *config.Env) http.Handler {
 
 	//mux.Handle("/", homeHandler(env))
 	mux.Handle("/", homeHandler(env))
-
+	mux.Mount("/role", role.Home(env))
 	fileServer := http.FileServer(http.Dir("./view/assets/"))
 	// Use the mux.Handle() function to register the file server as the handler for
 	// all URL paths that start with "/assets/". For matching paths, we strip the
