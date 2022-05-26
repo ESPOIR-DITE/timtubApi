@@ -14,6 +14,13 @@ type User struct {
 	RoleId    string    `json:"roleId"`
 }
 
+func (u User) Bind(r *http.Request) error {
+	if u.Name == "" && u.RoleId == "" && u.Email == "" {
+		return errors.New("missing required fields")
+	}
+	return nil
+}
+
 type Role struct {
 	Id          string `json:"id" gorm:"primaryKey"`
 	Name        string `json:"name"`
@@ -21,7 +28,6 @@ type Role struct {
 }
 
 func (role Role) Bind(r *http.Request) error {
-	//TODO implement me
 	if role.Name == "" {
 		return errors.New("missing required fields")
 	}
@@ -35,6 +41,13 @@ type UserAccount struct {
 	Date       time.Time `json:"date"`
 }
 
+func (u UserAccount) Bind(r *http.Request) error {
+	if u.Email == "" && u.Password == "" {
+		return errors.New("missing required fields")
+	}
+	return nil
+}
+
 type UserSubscription struct {
 	Id             string    `json:"id" gorm:"primaryKey"`
 	UserId         string    `json:"userId"`
@@ -42,8 +55,22 @@ type UserSubscription struct {
 	SubscriptionId string    `json:"subscriptionId"`
 	Date           time.Time `json:"date"`
 }
+
+func (u UserSubscription) Bind(r *http.Request) error {
+	if u.UserId == "" && u.SubscriptionId == "" {
+		return errors.New("missing required fields")
+	}
+	return nil
+}
+
 type UserVideo struct {
-	CustomerId string    `json:"customerId" gorm:"primaryKey"`
+	Id         string    `json:"id" gorm:"primaryKey"`
+	CustomerId string    `json:"customerId"`
 	VideoId    string    `json:"videoId"`
 	Date       time.Time `json:"date"`
+}
+
+func (u UserVideo) Bind(r *http.Request) error {
+	//TODO implement me
+	panic("implement me")
 }

@@ -31,6 +31,12 @@ func CreateUser(entity domain.User) *domain.User {
 	connection.Create(user).Find(&tableData)
 	return tableData
 }
+func UpdateUser(entity domain.User) *domain.User {
+	var tableData = &domain.User{}
+	user := domain.User{entity.Email, entity.Name, entity.Surname, entity.BirthDate, entity.RoleId}
+	connection.Create(user).Find(&tableData)
+	return tableData
+}
 func GetUser(email string) domain.User {
 	entity := domain.User{}
 	connection.Where("email = ?", email).Find(&entity)
@@ -48,4 +54,7 @@ func Delete(email string) bool {
 		return true
 	}
 	return false
+}
+func GetUserObject(user *domain.User) domain.User {
+	return domain.User{user.Email, user.Name, user.Surname, user.BirthDate, user.RoleId}
 }

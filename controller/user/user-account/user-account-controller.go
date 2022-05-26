@@ -1,4 +1,4 @@
-package role
+package video_comment
 
 import (
 	"encoding/json"
@@ -10,39 +10,41 @@ import (
 	"timtubeApi/config"
 	"timtubeApi/controller/util"
 	"timtubeApi/domain"
-	repository "timtubeApi/storage/user/role-repo"
+	repository "timtubeApi/storage/user/user-account-repo"
 )
 
 func Home(app *config.Env) http.Handler {
 	r := chi.NewRouter()
-	r.Handle("/", homeHandler(app))
-	r.Get("/get/{id}", getRole(app))
-	r.Post("/create", createRole(app))
-	r.Get("/getAll", getRoles(app))
-
-	//r.Use(middleware.LoginSession{SessionManager: app.Session}.RequireAuthenticatedUser)
-	//r.Get("/home", indexHanler(app))
-	//r.Get("/homeError", indexErrorHanler(app))
+	r.Get("/get/{id}", get(app))
+	r.Get("/delete/{id}", delete(app))
+	r.Post("/create", create(app))
+	r.Post("/create", update(app))
+	r.Get("/getAll", getAll(app))
 	return r
 }
-func homeHandler(app *config.Env) http.HandlerFunc {
+
+func delete(app *config.Env) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		response, err := json.Marshal("Role")
-		if err != nil {
-			fmt.Println("couldn't marshal")
-			render.Render(w, r, util.ErrInvalidRequest(errors.New("error marshalling")))
-			return
-		}
-		_, err = w.Write([]byte(response))
-		if err != nil {
-			return
+		id := chi.URLParam(r, "id")
+		if id != "" {
+			role := repository.DeleteUserAccount(id)
+			result, err := json.Marshal(role)
+			if err != nil {
+				fmt.Println("couldn't marshal")
+				render.Render(w, r, util.ErrInvalidRequest(errors.New("error marshalling")))
+				return
+			}
+			_, err = w.Write([]byte(result))
+			if err != nil {
+				return
+			}
 		}
 	}
 }
 
-func getRoles(app *config.Env) http.HandlerFunc {
+func getAll(app *config.Env) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		user := repository.GetRoles()
+		user := repository.GetUserAccounts()
 		result, err := json.Marshal(user)
 		if err != nil {
 			fmt.Println("couldn't marshal")
@@ -51,27 +53,28 @@ func getRoles(app *config.Env) http.HandlerFunc {
 		}
 		_, err = w.Write([]byte(result))
 		if err != nil {
+			render.Render(w, r, util.ErrInvalidRequest(errors.New("error writing bytes")))
 			return
 		}
 	}
 }
 
-func createRole(app *config.Env) http.HandlerFunc {
+func create(app *config.Env) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		data := &domain.Role{}
+		data := &domain.UserAccount{}
 		err := render.Bind(r, data)
 		if err != nil {
 			render.Render(w, r, util.ErrInvalidRequest(err))
 			return
 		}
-		var role = repository.GetRoleObject(data)
-		response := repository.CreateRole(role)
-		if response.Id == "" {
-			fmt.Println("error creating role")
-			render.Render(w, r, util.ErrInvalidRequest(errors.New("error creating role")))
+		object := repository.GetUserAccountObject(data)
+		response := repository.CreateUserAccount(object)
+		if response.CustomerId == "" {
+			fmt.Println("error creating User account")
+			render.Render(w, r, util.ErrInvalidRequest(errors.New("error creating User account")))
 			return
 		}
-		result, err := json.Marshal(repository.GetRoleObject(response))
+		result, err := json.Marshal(repository.GetUserAccountObject(response))
 		if err != nil {
 			fmt.Println("couldn't marshal")
 			render.Render(w, r, util.ErrInvalidRequest(errors.New("error marshalling")))
@@ -87,20 +90,20 @@ func createRole(app *config.Env) http.HandlerFunc {
 
 func update(app *config.Env) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		data := &domain.Role{}
+		data := &domain.UserAccount{}
 		err := render.Bind(r, data)
 		if err != nil {
 			render.Render(w, r, util.ErrInvalidRequest(err))
 			return
 		}
-		var role = repository.GetRoleObject(data)
-		response := repository.UpdateRole(role)
-		if response.Id == "" {
-			fmt.Println("error updating role")
-			render.Render(w, r, util.ErrInvalidRequest(errors.New("error updating role")))
+		object := repository.GetUserAccountObject(data)
+		response := repository.UpdateUserAccount(object)
+		if response.CustomerId == "" {
+			fmt.Println("error creating Video")
+			render.Render(w, r, util.ErrInvalidRequest(errors.New("error creating Video")))
 			return
 		}
-		result, err := json.Marshal(repository.GetRoleObject(response))
+		result, err := json.Marshal(repository.GetUserAccountObject(response))
 		if err != nil {
 			fmt.Println("couldn't marshal")
 			render.Render(w, r, util.ErrInvalidRequest(errors.New("error marshalling")))
@@ -114,12 +117,12 @@ func update(app *config.Env) http.HandlerFunc {
 	}
 }
 
-func getRole(app *config.Env) http.HandlerFunc {
+func get(app *config.Env) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := chi.URLParam(r, "id")
 		if id != "" {
-			role := repository.GetRole(id)
-			result, err := json.Marshal(role)
+			object := repository.GetUserAccount(id)
+			result, err := json.Marshal(object)
 			if err != nil {
 				fmt.Println("couldn't marshal")
 				render.Render(w, r, util.ErrInvalidRequest(errors.New("error marshalling")))

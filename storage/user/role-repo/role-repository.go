@@ -32,8 +32,8 @@ func CreateRole(entity domain.Role) *domain.Role {
 }
 func UpdateRole(entity domain.Role) *domain.Role {
 	var tableData = &domain.Role{}
-	user := domain.Role{entity.Id, entity.Name, entity.Description}
-	config.GetDatabase().Create(user).Find(&tableData)
+	//user := domain.Role{entity.Id, entity.Name, entity.Description}
+	config.GetDatabase().Create(entity).Find(&tableData)
 	return tableData
 }
 func GetRole(customerId string) domain.Role {

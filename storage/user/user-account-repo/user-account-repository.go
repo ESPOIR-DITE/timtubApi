@@ -8,7 +8,7 @@ import (
 )
 
 func CreateUserAccountTable() bool {
-	var tableData = &domain.User{}
+	var tableData = &domain.UserAccount{}
 	err := config.GetDatabase().AutoMigrate(tableData)
 	if err != nil {
 		return false
@@ -16,7 +16,7 @@ func CreateUserAccountTable() bool {
 	return true
 }
 func SetUserAccountDatabase() {
-	err := config.GetDatabase().Set("gorm:table_options", "ENGINE=Distributed(cluster, default, hits)").AutoMigrate(&domain.User{})
+	err := config.GetDatabase().Set("gorm:table_options", "ENGINE=Distributed(cluster, default, hits)").AutoMigrate(&domain.UserAccount{})
 	if err != nil {
 		fmt.Println("User Account database config not set")
 	} else {
@@ -27,6 +27,12 @@ func CreateUserAccount(entity domain.UserAccount) *domain.UserAccount {
 	var tableData = &domain.UserAccount{}
 	id := "UA-" + uuid.New().String()
 	user := domain.UserAccount{id, entity.Email, entity.Password, entity.Date}
+	config.GetDatabase().Create(user).Find(&tableData)
+	return tableData
+}
+func UpdateUserAccount(entity domain.UserAccount) *domain.UserAccount {
+	var tableData = &domain.UserAccount{}
+	user := domain.UserAccount{entity.CustomerId, entity.Email, entity.Password, entity.Date}
 	config.GetDatabase().Create(user).Find(&tableData)
 	return tableData
 }
@@ -47,4 +53,7 @@ func DeleteUserAccount(customerId string) bool {
 		return true
 	}
 	return false
+}
+func GetUserAccountObject(account *domain.UserAccount) domain.UserAccount {
+	return domain.UserAccount{account.CustomerId, account.Email, account.Password, account.Date}
 }
